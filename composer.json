@@ -1,5 +1,5 @@
 {
-    "name": "durrbar/core",
+    "name": "durrbar/core-module",
     "description": "",
     "authors": [
         {
@@ -7,6 +7,9 @@
             "email": "kidmax285@gmail.com"
         }
     ],
+    "homepage": "https://github.com/ikidmax/core-module",
+    "license": "MIT",
+    "version": "0.0.1",
     "extra": {
         "laravel": {
             "providers": [],
