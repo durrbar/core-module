@@ -1,0 +1,30 @@
+{
+    "name": "durrbar/core",
+    "description": "",
+    "authors": [
+        {
+            "name": "Kid Max",
+            "email": "kidmax285@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Core\\": "app/",
+            "Modules\\Core\\Database\\Factories\\": "database/factories/",
+            "Modules\\Core\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Core\\Tests\\": "tests/"
+        }
+    }
+}
