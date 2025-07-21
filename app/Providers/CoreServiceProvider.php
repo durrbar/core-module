@@ -3,7 +3,27 @@
 namespace Modules\Core\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
+use Modules\Core\Console\AdminCreateCommand;
+use Modules\Core\Console\AWSSetupCommand;
+use Modules\Core\Console\CopyFilesCommand;
+use Modules\Core\Console\DatabaseSetupCommand;
+use Modules\Core\Console\DefaultLanguageSetupCommand;
+use Modules\Core\Console\DurrbarInfoCommand;
+use Modules\Core\Console\DurrbarVerification;
+use Modules\Core\Console\ENVSetupCommand;
+use Modules\Core\Console\FrontendSetupCommand;
+use Modules\Core\Console\ImportDemoData;
+use Modules\Core\Console\InstallCommand;
+use Modules\Core\Console\MailchimpNewsletterSetupCommand;
+use Modules\Core\Console\MailSetupCommand;
+use Modules\Core\Console\OTPGatewaySetupCommand;
+use Modules\Core\Console\QueueConnectionSetupCommand;
+use Modules\Core\Console\SettingsDataImporter;
+use Modules\Core\Console\TestMailSendCommand;
+use Modules\Core\Console\TranslationEnabledCommand;
+use Modules\Core\Http\Resources\Resource;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -27,6 +47,15 @@ class CoreServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        Resource::withoutWrapping();
+
+        if (File::exists(__DIR__.'/../Helpers/helpers.php')) {
+            require __DIR__.'/../Helpers/helpers.php';
+        }
+        if (File::exists(__DIR__.'/../Helpers/ResourceHelpers.php')) {
+            require __DIR__.'/../Helpers/ResourceHelpers.php';
+        }
     }
 
     /**
@@ -36,6 +65,34 @@ class CoreServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+
+        $this->app->singleton(DurrbarVerification::class, function ($app) {
+            return new DurrbarVerification();
+        });
+
+        $this->mergeConfigFrom(__DIR__.'/../Config/shop.php', 'shop');
+
+        require_once __DIR__.'/../Config/constants.php';
+
+        config([
+            'auth' => File::getRequire(__DIR__.'/../Config/auth.php'),
+            'cors' => File::getRequire(__DIR__.'/../Config/cors.php'),
+            'cache' => File::getRequire(__DIR__.'/../Config/cache.php'),
+            'graphql-playground' => File::getRequire(__DIR__.'/../Config/graphql-playground.php'),
+            'laravel-omnipay' => File::getRequire(__DIR__.'/../Config/laravel-omnipay.php'),
+            'media-library' => File::getRequire(__DIR__.'/../Config/media-library.php'),
+            'permission' => File::getRequire(__DIR__.'/../Config/permission.php'),
+            'sanctum' => File::getRequire(__DIR__.'/../Config/sanctum.php'),
+            'services' => File::getRequire(__DIR__.'/../Config/services.php'),
+            'scout' => File::getRequire(__DIR__.'/../Config/scout.php'),
+            'sluggable' => File::getRequire(__DIR__.'/../Config/sluggable.php'),
+            'newsletter' => File::getRequire(__DIR__.'/../Config/newsletter.php'),
+            'paystack' => File::getRequire(__DIR__.'/../Config/paystack.php'),
+            'paymongo' => File::getRequire(__DIR__.'/../Config/paymongo.php'),
+            'graphiql' => File::getRequire(__DIR__.'/../Config/graphiql.php'),
+            'sslcommerz' => File::getRequire(__DIR__.'/../Config/sslcommerz.php'),
+            'broadcasting' => File::getRequire(__DIR__.'/../Config/broadcasting.php'),
+        ]);
     }
 
     /**
@@ -43,7 +100,25 @@ class CoreServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            InstallCommand::class,
+            AdminCreateCommand::class,
+            ImportDemoData::class,
+            CopyFilesCommand::class,
+            SettingsDataImporter::class,
+            MailSetupCommand::class,
+            AWSSetupCommand::class,
+            FrontendSetupCommand::class,
+            TranslationEnabledCommand::class,
+            DefaultLanguageSetupCommand::class,
+            QueueConnectionSetupCommand::class,
+            OTPGatewaySetupCommand::class,
+            MailchimpNewsletterSetupCommand::class,
+            ENVSetupCommand::class,
+            DatabaseSetupCommand::class,
+            DurrbarInfoCommand::class,
+            TestMailSendCommand::class,
+        ]);
     }
 
     /**
@@ -86,8 +161,8 @@ class CoreServiceProvider extends ServiceProvider
 
             foreach ($iterator as $file) {
                 if ($file->isFile() && $file->getExtension() === 'php') {
-                    $relativePath = str_replace($configPath . DIRECTORY_SEPARATOR, '', $file->getPathname());
-                    $configKey = $this->nameLower . '.' . str_replace([DIRECTORY_SEPARATOR, '.php'], ['.', ''], $relativePath);
+                    $relativePath = str_replace($configPath.DIRECTORY_SEPARATOR, '', $file->getPathname());
+                    $configKey = $this->nameLower.'.'.str_replace([DIRECTORY_SEPARATOR, '.php'], ['.', ''], $relativePath);
                     $key = ($relativePath === 'config.php') ? $this->nameLower : $configKey;
 
                     $this->publishes([$file->getPathname() => config_path($relativePath)], 'config');
