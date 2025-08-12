@@ -21,6 +21,7 @@ use Modules\Core\Console\MailSetupCommand;
 use Modules\Core\Console\OTPGatewaySetupCommand;
 use Modules\Core\Console\QueueConnectionSetupCommand;
 use Modules\Core\Console\SettingsDataImporter;
+use Modules\Core\Console\SettingsImportCommand;
 use Modules\Core\Console\TestMailSendCommand;
 use Modules\Core\Console\TranslationEnabledCommand;
 use Modules\Core\Http\Resources\Resource;
@@ -106,6 +107,7 @@ class CoreServiceProvider extends ServiceProvider
             ImportDemoData::class,
             CopyFilesCommand::class,
             SettingsDataImporter::class,
+            SettingsImportCommand::class,
             MailSetupCommand::class,
             AWSSetupCommand::class,
             FrontendSetupCommand::class,
