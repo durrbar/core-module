@@ -4,6 +4,7 @@ namespace Modules\Core\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Modules\Settings\Database\Seeders\SettingsSeeder;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\info;
@@ -41,7 +42,7 @@ class SettingsDataImporter extends Command
                 info('Importing dummy settings...');
 
                 $this->call('db:seed', [
-                    '--class' => '\\Modules\Ecommerce\\Database\\Seeders\\SettingsSeeder',
+                    '--class' => SettingsSeeder::class,
                 ]);
 
                 $this->verification->modifySettingsData();

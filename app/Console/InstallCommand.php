@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 use Modules\Ecommerce\Database\Seeders\DurrbarSeeder;
 use Modules\Role\Enums\Permission as UserPermission;
 use Modules\Role\Enums\Role as UserRole;
+use Modules\Settings\Database\Seeders\SettingsSeeder;
 use Modules\Settings\Models\Settings;
 use PDO;
 use PDOException;
@@ -67,7 +68,7 @@ class InstallCommand extends Command
             $this->call(
                 'db:seed',
                 [
-                    '--class' => '\\Modules\Ecommerce\\Database\\Seeders\\SettingsSeeder',
+                    '--class' => SettingsSeeder::class,
                 ]
             );
 
