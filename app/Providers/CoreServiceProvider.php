@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Modules\Core\Console\AdminCreateCommand;
+use Modules\Core\Console\AdminImportCommand;
 use Modules\Core\Console\AWSSetupCommand;
 use Modules\Core\Console\CopyFilesCommand;
 use Modules\Core\Console\DatabaseSetupCommand;
@@ -77,22 +78,23 @@ class CoreServiceProvider extends ServiceProvider
 
         config([
             'auth' => File::getRequire(__DIR__.'/../Config/auth.php'),
-            'cors' => File::getRequire(__DIR__.'/../Config/cors.php'),
+            'broadcasting' => File::getRequire(__DIR__.'/../Config/broadcasting.php'),
             'cache' => File::getRequire(__DIR__.'/../Config/cache.php'),
+            'cors' => File::getRequire(__DIR__.'/../Config/cors.php'),
+            'fortify' => File::getRequire(__DIR__.'/../Config/fortify.php'),
+            'graphiql' => File::getRequire(__DIR__.'/../Config/graphiql.php'),
             'graphql-playground' => File::getRequire(__DIR__.'/../Config/graphql-playground.php'),
             'laravel-omnipay' => File::getRequire(__DIR__.'/../Config/laravel-omnipay.php'),
             'media-library' => File::getRequire(__DIR__.'/../Config/media-library.php'),
+            'newsletter' => File::getRequire(__DIR__.'/../Config/newsletter.php'),
+            'paymongo' => File::getRequire(__DIR__.'/../Config/paymongo.php'),
+            'paystack' => File::getRequire(__DIR__.'/../Config/paystack.php'),
             'permission' => File::getRequire(__DIR__.'/../Config/permission.php'),
             'sanctum' => File::getRequire(__DIR__.'/../Config/sanctum.php'),
-            'services' => File::getRequire(__DIR__.'/../Config/services.php'),
             'scout' => File::getRequire(__DIR__.'/../Config/scout.php'),
+            'services' => File::getRequire(__DIR__.'/../Config/services.php'),
             'sluggable' => File::getRequire(__DIR__.'/../Config/sluggable.php'),
-            'newsletter' => File::getRequire(__DIR__.'/../Config/newsletter.php'),
-            'paystack' => File::getRequire(__DIR__.'/../Config/paystack.php'),
-            'paymongo' => File::getRequire(__DIR__.'/../Config/paymongo.php'),
-            'graphiql' => File::getRequire(__DIR__.'/../Config/graphiql.php'),
             'sslcommerz' => File::getRequire(__DIR__.'/../Config/sslcommerz.php'),
-            'broadcasting' => File::getRequire(__DIR__.'/../Config/broadcasting.php'),
         ]);
     }
 
@@ -104,6 +106,7 @@ class CoreServiceProvider extends ServiceProvider
         $this->commands([
             InstallCommand::class,
             AdminCreateCommand::class,
+            AdminImportCommand::class,
             ImportDemoData::class,
             CopyFilesCommand::class,
             SettingsDataImporter::class,
