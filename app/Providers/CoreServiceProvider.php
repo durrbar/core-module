@@ -90,6 +90,7 @@ class CoreServiceProvider extends ServiceProvider
             'paymongo' => File::getRequire(__DIR__.'/../Config/paymongo.php'),
             'paystack' => File::getRequire(__DIR__.'/../Config/paystack.php'),
             'permission' => File::getRequire(__DIR__.'/../Config/permission.php'),
+            'reverb' => File::getRequire(__DIR__.'/../Config/reverb.php'),
             'sanctum' => File::getRequire(__DIR__.'/../Config/sanctum.php'),
             'scout' => File::getRequire(__DIR__.'/../Config/scout.php'),
             'services' => File::getRequire(__DIR__.'/../Config/services.php'),
