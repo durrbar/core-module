@@ -24,7 +24,7 @@ return [
          * `Spatie\Permission\Contracts\Role` contract.
          */
 
-        'role' => \Modules\User\Models\Role::class,
+        'role' => \Modules\Role\Models\Role::class,
 
     ],
 
