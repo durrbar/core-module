@@ -19,7 +19,7 @@ class ImportDemoData extends Command
 
         info('Copying necessary files for seeding....');
 
-        (new Filesystem())->copyDirectory(__DIR__.'/../../stubs/sql/'.config('shop.dummy_data_path'), public_path('sql'));
+        // (new Filesystem())->copyDirectory(__DIR__.'/../../stubs/sql/'.config('shop.dummy_data_path'), public_path('sql'));
 
         info('File copying successful');
 
@@ -32,11 +32,11 @@ class ImportDemoData extends Command
     {
         $media_path = public_path('sql/media.sql');
         $media_sql = file_get_contents($media_path);
-        DB::statement($media_sql);
+        // DB::statement($media_sql);
 
         $attachments_path = public_path('sql/attachments.sql');
         $attachments_sql = file_get_contents($attachments_path);
-        DB::statement($attachments_sql);
+        // DB::statement($attachments_sql);
 
         $permissions_path = public_path('sql/permissions.sql');
         $permissions_sql = file_get_contents($permissions_path);
@@ -52,7 +52,7 @@ class ImportDemoData extends Command
 
         $banners_path = public_path('sql/banners.sql');
         $banners_sql = file_get_contents($banners_path);
-        DB::statement($banners_sql);
+        // DB::statement($banners_sql);
 
         $users_path = public_path('sql/users.sql');
         $users_sql = file_get_contents($users_path);
@@ -84,7 +84,7 @@ class ImportDemoData extends Command
 
         $balances_path = public_path('sql/balances.sql');
         $balances_sql = file_get_contents($balances_path);
-        DB::statement($balances_sql);
+        // DB::statement($balances_sql);
 
         $attributes_path = public_path('sql/attributes.sql');
         $attributes_sql = file_get_contents($attributes_path);
@@ -92,11 +92,11 @@ class ImportDemoData extends Command
 
         $attribute_values_path = public_path('sql/attribute_values.sql');
         $attribute_values_sql = file_get_contents($attribute_values_path);
-        DB::statement($attribute_values_sql);
+        // DB::statement($attribute_values_sql);
 
         $categories_path = public_path('sql/categories.sql');
         $categories_sql = file_get_contents($categories_path);
-        DB::statement($categories_sql);
+        // DB::statement($categories_sql);
 
         $tags_path = public_path('sql/tags.sql');
         $tags_sql = file_get_contents($tags_path);
@@ -112,31 +112,31 @@ class ImportDemoData extends Command
 
         $products_path = public_path('sql/products.sql');
         $products_sql = file_get_contents($products_path);
-        DB::statement($products_sql);
+        // DB::statement($products_sql);
 
         $attribute_product_path = public_path('sql/attribute_product.sql');
         $attribute_product_sql = file_get_contents($attribute_product_path);
-        DB::statement($attribute_product_sql);
+        // DB::statement($attribute_product_sql);
 
         $variation_options_path = public_path('sql/variation_options.sql');
         $variation_options_sql = file_get_contents($variation_options_path);
-        DB::statement($variation_options_sql);
+        // DB::statement($variation_options_sql);
 
         $coupons_path = public_path('sql/coupons.sql');
         $coupons_sql = file_get_contents($coupons_path);
-        DB::statement($coupons_sql);
+        // DB::statement($coupons_sql);
 
         $digital_files_path = public_path('sql/digital_files.sql');
         $digital_files_sql = file_get_contents($digital_files_path);
-        DB::statement($digital_files_sql);
+        // DB::statement($digital_files_sql);
 
         $category_product_path = public_path('sql/category_product.sql');
         $category_product_sql = file_get_contents($category_product_path);
-        DB::statement($category_product_sql);
+        // DB::statement($category_product_sql);
 
         $product_tag_path = public_path('sql/product_tag.sql');
         $product_tag_sql = file_get_contents($product_tag_path);
-        DB::statement($product_tag_sql);
+        // DB::statement($product_tag_sql);
 
         // $settings_path = public_path('sql/settings.sql');
         // $settings_sql = file_get_contents($settings_path);
@@ -152,19 +152,19 @@ class ImportDemoData extends Command
 
         $reviews_path = public_path('sql/reviews.sql');
         $reviews_sql = file_get_contents($reviews_path);
-        DB::statement($reviews_sql);
+        // DB::statement($reviews_sql);
 
         $questions_path = public_path('sql/questions.sql');
         $questions_sql = file_get_contents($questions_path);
-        DB::statement($questions_sql);
+        // DB::statement($questions_sql);
 
         $orders_path = public_path('sql/orders.sql');
         $orders_sql = file_get_contents($orders_path);
-        DB::statement($orders_sql);
+        // DB::statement($orders_sql);
 
         $order_product_path = public_path('sql/order_product.sql');
         $order_product_sql = file_get_contents($order_product_path);
-        DB::statement($order_product_sql);
+        // DB::statement($order_product_sql);
 
         $flash_sale_path = public_path('sql/flash_sales.sql');
         $flash_sale_sql = file_get_contents($flash_sale_path);
@@ -172,7 +172,7 @@ class ImportDemoData extends Command
 
         $flash_sale_products_path = public_path('sql/flash_sale_products.sql');
         $flash_sale_products_sql = file_get_contents($flash_sale_products_path);
-        DB::statement($flash_sale_products_sql);
+        // DB::statement($flash_sale_products_sql);
 
         // $terms_path = public_path('sql/terms_and_conditions.sql');
         // $terms_sql = file_get_contents($terms_path);
@@ -180,11 +180,11 @@ class ImportDemoData extends Command
 
         $become_seller = public_path('sql/became_sellers.sql');
         $become_seller_sql = file_get_contents($become_seller);
-        DB::statement($become_seller_sql);
+        // DB::statement($become_seller_sql);
 
         $commissions = public_path('sql/commissions.sql');
         $commissions_sql = file_get_contents($commissions);
-        DB::statement($commissions_sql);
+        // DB::statement($commissions_sql);
 
         info('Seed completed successfully!');
     }
