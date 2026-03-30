@@ -1,13 +1,15 @@
 <?php
 
-if (!function_exists('getResourceData')) {
+declare(strict_types=1);
+
+if (! function_exists('getResourceData')) {
     function getResourceData($data, array $extra = [])
     {
         $item = [
             'id' => $data?->id,
             'name' => $data?->name,
             'slug' => $data?->slug,
-            'logo' => $data?->logo,
+            'logo' => $data?->logo ?? null,
         ];
 
         if (! empty($extra)) {
@@ -22,7 +24,7 @@ if (!function_exists('getResourceData')) {
     }
 }
 
-if (!function_exists('getResourceCollection')) {
+if (! function_exists('getResourceCollection')) {
     function getResourceCollection($data, array $extra = [])
     {
         return collect($data)->map(function ($item) use ($extra) {
@@ -45,7 +47,7 @@ if (!function_exists('getResourceCollection')) {
     }
 }
 
-if (!function_exists('getVariations')) {
+if (! function_exists('getVariations')) {
     function getVariations($data)
     {
         $variations = [];
