@@ -55,7 +55,7 @@ final class CoreServiceProvider extends ServiceProvider
 
         Resource::withoutWrapping();
 
-        Model::preventLazyLoading(false);
+        // Model::preventLazyLoading(false);
 
         if (File::exists(__DIR__.'/../Helpers/helpers.php')) {
             require __DIR__.'/../Helpers/helpers.php';
