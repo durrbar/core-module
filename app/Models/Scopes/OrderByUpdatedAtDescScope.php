@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Modules\Core\Models\Scopes;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Scope;
+
+final class OrderByUpdatedAtDescScope implements Scope
+{
+    public function apply(Builder $builder, Model $model): void
+    {
+        $builder->orderBy('updated_at', 'desc');
+    }
+}
