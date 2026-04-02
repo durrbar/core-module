@@ -82,11 +82,11 @@ class SettingsDataImporter extends Command
     private function shouldGetLicenseKey()
     {
         $env = config('app.env');
-        if ($env == 'production') {
+        if ($env === 'production') {
             return true;
-        } elseif ($env == 'local' && empty($this->verification->getTrust())) {
+        } elseif ($env === 'local' && empty($this->verification->getTrust())) {
             return true;
-        } elseif ($env == 'development' && empty($this->verification->getTrust())) {
+        } elseif ($env === 'development' && empty($this->verification->getTrust())) {
             return true;
         }
 

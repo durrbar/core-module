@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
+use Luigel\Paymongo\Paymongo;
+use Luigel\Paymongo\Signer\DefaultSigner;
+
 return [
 
     'livemode' => env('PAYMONGO_LIVEMODE', false),
@@ -35,7 +40,7 @@ return [
      * the headers of the webhook request. A webhook client can use the signature
      * to verify the request hasn't been tampered with.
      */
-    'signer' => \Luigel\Paymongo\Signer\DefaultSigner::class,
+    'signer' => DefaultSigner::class,
 
     /**
      * Paymongo webhooks signature secret.
@@ -64,5 +69,5 @@ return [
      *
      * Choices are: Paymongo::AMOUNT_TYPE_FLOAT, or Paymongo::AMOUNT_TYPE_INT
      */
-    'amount_type' => \Luigel\Paymongo\Paymongo::AMOUNT_TYPE_FLOAT,
+    'amount_type' => Paymongo::AMOUNT_TYPE_FLOAT,
 ];

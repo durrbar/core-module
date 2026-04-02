@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -53,7 +55,7 @@ if (! function_exists('gateway_path')) {
                 }
                 $cleanString = preg_replace("/[~`{}.'\"\!\@\#\$\%\^\&\*\(\)\_\=\+\/\?\>\<\,\[\]\:\;\|\\\]/", '', $slugText);
                 $cleanString = preg_replace("/[\/_|+ -]+/", '-', $slugText);
-                $slug = strtolower($cleanString);
+                $slug = mb_strtolower($cleanString);
                 if ($key) {
                     $slugCount = $query->where($key, $slug)->count();
                 } else {
@@ -68,7 +70,7 @@ if (! function_exists('gateway_path')) {
                 }
 
                 return "{$slug}{$divider}{$randomString}";
-            } catch (\Throwable $th) {
+            } catch (Throwable $th) {
                 throw $th;
             }
         }
@@ -94,10 +96,11 @@ if (! function_exists('gateway_path')) {
             $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
             if ($unit) {
                 // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
-                return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
-            } else {
-                return round($size);
+                return round($size * pow(1024, mb_stripos('bkmgtpezy', $unit[0])));
             }
+
+            return round($size);
+
         }
     }
 

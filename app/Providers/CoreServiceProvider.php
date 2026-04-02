@@ -33,7 +33,7 @@ use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-final class CoreServiceProvider extends ServiceProvider
+class CoreServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 

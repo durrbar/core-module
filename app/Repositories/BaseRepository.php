@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Repositories;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Modules\Core\Exceptions\DurrbarException;
 use Modules\Role\Enums\Permission;
@@ -23,7 +26,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  array  $columns
      * @return mixed
      */
-    public function findOneByField($field, $value = null, $columns = ['*'])
+    final public function findOneByField($field, $value = null, $columns = ['*'])
     {
         $model = $this->findByField($field, $value, $columns = ['*']);
 
@@ -43,9 +46,9 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * from the database table should be retrieved. By default, it is set to ['*'], which means all
      * columns will be retrieved. However, you can pass an array of specific column names to retrieve
      * only those columns.
-     * @return \Illuminate\Database\Eloquent\Model first model that matches the given field and value.
+     * @return Model first model that matches the given field and value.
      */
-    public function findOneByFieldOrFail($field, $value = null, $columns = ['*'])
+    final public function findOneByFieldOrFail($field, $value = null, $columns = ['*'])
     {
         $model = $this->findByField($field, $value, $columns = ['*']);
         if (! $model->first()) {
@@ -63,7 +66,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  array  $columns
      * @return mixed
      */
-    public function findOneWhere(array $where, $columns = ['*'])
+    final public function findOneWhere(array $where, $columns = ['*'])
     {
         $model = $this->findWhere($where, $columns);
 
@@ -77,7 +80,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  array  $columns
      * @return mixed
      */
-    public function find($id, $columns = ['*'])
+    final public function find($id, $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -94,7 +97,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  array  $columns
      * @return mixed
      */
-    public function findOrFail($id, $columns = ['*'])
+    final public function findOrFail($id, $columns = ['*'])
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -110,7 +113,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  string  $columns
      * @return int
      */
-    public function count(array $where = [], $columns = '*')
+    final public function count(array $where = [], $columns = '*')
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -130,7 +133,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  string  $columns
      * @return mixed
      */
-    public function sum($columns)
+    final public function sum($columns)
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -145,7 +148,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param  string  $columns
      * @return mixed
      */
-    public function avg($columns)
+    final public function avg($columns)
     {
         $this->applyCriteria();
         $this->applyScope();
@@ -159,12 +162,12 @@ abstract class BaseRepository extends Repository implements CacheableInterface
     /**
      * @return mixed
      */
-    public function getModel()
+    final public function getModel()
     {
         return $this->model;
     }
 
-    public function hasPermission($user, $shop_id = null)
+    final public function hasPermission($user, $shop_id = null)
     {
         if ($user && $user->hasPermissionTo(Permission::SuperAdmin->value)) {
             return true;
@@ -190,7 +193,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
         return false;
     }
 
-    public function csvToArray($filename = '', $delimiter = ',')
+    final public function csvToArray($filename = '', $delimiter = ',')
     {
         if (! file_exists($filename) || ! is_readable($filename)) {
             return false;
@@ -220,7 +223,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
      * @param string key The key of the request that you want to slugify.
      * @return string A string
      */
-    public function makeSlug(Request $request, string $key = '', ?int $update = null): string
+    final public function makeSlug(Request $request, string $key = '', ?int $update = null): string
     {
         $slugText = match (true) {
             ! empty($request->slug) => $request->slug,
@@ -236,7 +239,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
         return globalSlugify(slugText: $request[$key], model: $this->model(), key: $key, update: $update);
     }
 
-    public function findBySlugOrId(int|string $value, string $language = DEFAULT_LANGUAGE)
+    final public function findBySlugOrId(int|string $value, string $language = DEFAULT_LANGUAGE)
     {
         return match (true) {
             is_numeric($value) => $this->where('id', $value)->where('language', $language)->firstOrFail(),
