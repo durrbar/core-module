@@ -166,7 +166,7 @@ abstract class BaseRepository extends Repository implements CacheableInterface
 
     public function hasPermission($user, $shop_id = null)
     {
-        if ($user && $user->hasPermissionTo(Permission::SUPER_ADMIN)) {
+        if ($user && $user->hasPermissionTo(Permission::SuperAdmin->value)) {
             return true;
         }
         try {
@@ -177,11 +177,11 @@ abstract class BaseRepository extends Repository implements CacheableInterface
         if (! $shop->is_active) {
             throw new DurrbarException(SHOP_NOT_APPROVED);
         }
-        if ($user && $user->hasPermissionTo(Permission::STORE_OWNER)) {
+        if ($user && $user->hasPermissionTo(Permission::StoreOwner->value)) {
             if ($shop->owner_id === $user->id) {
                 return true;
             }
-        } elseif ($user && $user->hasPermissionTo(Permission::STAFF)) {
+        } elseif ($user && $user->hasPermissionTo(Permission::Staff->value)) {
             if ($shop->staffs->contains($user)) {
                 return true;
             }
