@@ -8,10 +8,8 @@ trait HasPagination
 {
     /**
      * Get pagination metadata.
-     *
-     * @return array
      */
-    public function pagination()
+    public function pagination(): array
     {
         return [
             'total' => $this->total(),
