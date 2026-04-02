@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -11,28 +16,16 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\table;
 
+#[Signature('durrbar:translation-enable')]
+#[Description('Translation Enable in .env file')]
 class TranslationEnabledCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:translation-enable';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Translation Enable in .env file';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -67,7 +60,7 @@ class TranslationEnabledCommand extends Command
                     );
 
                     if ($confirmed) {
-                        if ($role == 'Enable') {
+                        if ($role === 'Enable') {
                             $envContent = preg_replace(
                                 '/(TRANSLATION_ENABLED)=(.*)/',
                                 '$1=true',
@@ -92,22 +85,25 @@ class TranslationEnabledCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
-    private function translationEnableTable($role)
+    private function translationEnableTable(string $role): void
     {
         info('Please, check your credentials properly');
-        if ($role == 'Enable') {
+        if ($role === 'Enable') {
             $value = 'true';
         } else {
             $value = 'false';
         }
         table(['Key', 'Value'], [
             ['TRANSLATION_ENABLED', $value],
-
         ]);
     }
 }

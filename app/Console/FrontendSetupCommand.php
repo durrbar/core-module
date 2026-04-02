@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -12,28 +17,16 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:frontend-setup')]
+#[Description('Frontend (shop and admin) URL setup')]
 class FrontendSetupCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:frontend-setup';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Frontend (shop and admin) URL setup';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -68,14 +61,14 @@ class FrontendSetupCommand extends Command
                     );
 
                     if ($confirmed) {
-                        if ($shop_url != '') {
+                        if ($shop_url !== '') {
                             $envContent = preg_replace(
                                 '/(SHOP_URL)=(.*)/',
                                 "$1=$shop_url",
                                 $envContent
                             );
                         }
-                        if ($admin_url != '') {
+                        if ($admin_url !== '') {
                             $envContent = preg_replace(
                                 '/(DASHBOARD_URL)=(.*)/',
                                 "$1=$admin_url",
@@ -95,17 +88,21 @@ class FrontendSetupCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
-    private function dataTable($shop_url, $admin_url)
+    private function dataTable(?string $shop_url, ?string $admin_url): void
     {
-        if ($shop_url == null && $shop_url == '') {
+        if ($shop_url === null || $shop_url === '') {
             $shop_url = env('SHOP_URL');
         }
-        if ($admin_url == null && $admin_url == '') {
+        if ($admin_url === null || $admin_url === '') {
             $admin_url = env('DASHBOARD_URL');
         }
         info('Please, check your credentials properly');
@@ -115,7 +112,7 @@ class FrontendSetupCommand extends Command
         ]);
     }
 
-    private function previousData($envContent)
+    private function previousData(string $envContent): array
     {
         $targetKeys = ['SHOP_URL', 'DASHBOARD_URL']; // Add the keys you want to display
         $keyValuePairs = [];
@@ -141,7 +138,7 @@ class FrontendSetupCommand extends Command
         }
     }
 
-    private function shopDomain($data)
+    private function shopDomain(array $data): string
     {
         $shop_url = '';
         $shopUrl = $data[0][1];
@@ -175,7 +172,7 @@ class FrontendSetupCommand extends Command
         return $shop_url;
     }
 
-    private function adminDomain($data)
+    private function adminDomain(array $data): string
     {
         $admin_url = '';
         $adminUrl = $data[1][1];

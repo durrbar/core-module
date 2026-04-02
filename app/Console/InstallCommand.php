@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Modules\Ecommerce\Database\Seeders\DurrbarSeeder;
@@ -13,6 +17,7 @@ use PDO;
 use PDOException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
@@ -20,17 +25,15 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:install')]
+#[Description('Installing Durrbar Dependencies')]
 class InstallCommand extends Command
 {
-    private array $appData;
-
     protected DurrbarVerification $verification;
 
-    protected $signature = 'durrbar:install';
+    private array $appData;
 
-    protected $description = 'Installing Durrbar Dependencies';
-
-    public function handle()
+    public function handle(): int
     {
         // $this->verification = new DurrbarVerification();
         // $shouldGetLicenseKeyFromUser = $this->shouldGetLicenseKey();
@@ -81,22 +84,22 @@ class InstallCommand extends Command
             }
         }
 
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        Permission::firstOrCreate(['name' => UserPermission::SUPER_ADMIN]);
-        Permission::firstOrCreate(['name' => UserPermission::CUSTOMER]);
-        Permission::firstOrCreate(['name' => UserPermission::STORE_OWNER]);
-        Permission::firstOrCreate(['name' => UserPermission::STAFF]);
+        Permission::firstOrCreate(['name' => UserPermission::SuperAdmin->value]);
+        Permission::firstOrCreate(['name' => UserPermission::Customer->value]);
+        Permission::firstOrCreate(['name' => UserPermission::StoreOwner->value]);
+        Permission::firstOrCreate(['name' => UserPermission::Staff->value]);
 
-        $superAdminPermissions = [UserPermission::SUPER_ADMIN, UserPermission::STORE_OWNER, UserPermission::CUSTOMER];
-        $storeOwnerPermissions = [UserPermission::STORE_OWNER, UserPermission::CUSTOMER];
-        $staffPermissions = [UserPermission::STAFF, UserPermission::CUSTOMER];
-        $customerPermissions = [UserPermission::CUSTOMER];
+        $superAdminPermissions = [UserPermission::SuperAdmin->value, UserPermission::StoreOwner->value, UserPermission::Customer->value];
+        $storeOwnerPermissions = [UserPermission::StoreOwner->value, UserPermission::Customer->value];
+        $staffPermissions = [UserPermission::Staff->value, UserPermission::Customer->value];
+        $customerPermissions = [UserPermission::Customer->value];
 
-        Role::firstOrCreate(['name' => UserRole::SUPER_ADMIN])->syncPermissions($superAdminPermissions);
-        Role::firstOrCreate(['name' => UserRole::STORE_OWNER])->syncPermissions($storeOwnerPermissions);
-        Role::firstOrCreate(['name' => UserRole::STAFF])->syncPermissions($staffPermissions);
-        Role::firstOrCreate(['name' => UserRole::CUSTOMER])->syncPermissions($customerPermissions);
+        Role::firstOrCreate(['name' => UserRole::SuperAdmin->value])->syncPermissions($superAdminPermissions);
+        Role::firstOrCreate(['name' => UserRole::StoreOwner->value])->syncPermissions($storeOwnerPermissions);
+        Role::firstOrCreate(['name' => UserRole::Staff->value])->syncPermissions($staffPermissions);
+        Role::firstOrCreate(['name' => UserRole::Customer->value])->syncPermissions($customerPermissions);
 
         $this->call('durrbar:create-admin'); // creating Admin
 
@@ -122,6 +125,8 @@ class InstallCommand extends Command
         info('Everything is successful. Now clearing all cached...');
         $this->call('optimize:clear');
         info('Thank You.');
+
+        return self::SUCCESS;
     }
 
     private function createDatabase(): void
@@ -154,7 +159,7 @@ class InstallCommand extends Command
         }
     }
 
-    private function getLicenseKey($count = 0)
+    private function getLicenseKey(int $count = 0): bool
     {
         $message = 'Kindly enter a valid License Key or visit https://redq.io/pickbazar-laravel-ecommerce for a legitimate license key';
         if ($count < 1) {
@@ -179,15 +184,17 @@ class InstallCommand extends Command
         return $verification->getTrust();
     }
 
-    private function shouldGetLicenseKey()
+    private function shouldGetLicenseKey(): bool
     {
         $trust = empty($this->verification->getTrust());
         $env = config('app.env');
-        if ($env == 'production') {
+        if ($env === 'production') {
             return true;
-        } elseif ($env == 'local' && $trust) {
+        }
+        if ($env === 'local' && $trust) {
             return true;
-        } elseif ($env == 'development' && $trust) {
+        }
+        if ($env === 'development' && $trust) {
             return true;
         }
 
@@ -196,8 +203,7 @@ class InstallCommand extends Command
 
     private function modifySettingsData(): void
     {
-
-        $language = isset(request()['language']) ? request()['language'] : DEFAULT_LANGUAGE;
+        $language = request()['language'] ?? DEFAULT_LANGUAGE;
         Cache::flush();
         $settings = Settings::getData($language);
         $settings->update([

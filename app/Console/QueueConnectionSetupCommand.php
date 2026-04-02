@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -11,28 +16,16 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:queue-setup')]
+#[Description('Setup queue connection in .env file')]
 class QueueConnectionSetupCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:queue-setup';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Setup queue connection in .env file';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -78,12 +71,16 @@ class QueueConnectionSetupCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
-    private function queueConnectionTable($queue_connection)
+    private function queueConnectionTable(string $queue_connection): void
     {
         info('Please, check your credentials properly');
         table(['Key', 'Value'], [

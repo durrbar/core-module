@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -11,28 +16,16 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:database-setup')]
+#[Description('Setup MySQL database in .env file')]
 class DatabaseSetupCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:database-setup';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Setup MySQL database in .env file';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -104,19 +97,23 @@ class DatabaseSetupCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
     private function databaseTable(
         // $db_connection,
-        $db_host,
-        $db_port,
-        $db_database,
-        $db_username,
-        $db_password,
-    ) {
+        string $db_host,
+        string $db_port,
+        string $db_database,
+        string $db_username,
+        string $db_password,
+    ): void {
         info('Please, check your credentials properly');
         table(['Key', 'Value'], [
             ['DB_CONNECTION', 'mysql'],
@@ -131,14 +128,14 @@ class DatabaseSetupCommand extends Command
 
     // setup database key and value in .env file
     private function databaseSetup(
-        $envContent,
+        string $envContent,
         // $db_connection,
-        $db_host,
-        $db_port,
-        $db_database,
-        $db_username,
-        $db_password,
-    ) {
+        string $db_host,
+        string $db_port,
+        string $db_database,
+        string $db_username,
+        string $db_password,
+    ): string {
         // $envContent = preg_replace(
         //     "/(DB_CONNECTION)=(.*)/",
         //     "$1=$db_connection",

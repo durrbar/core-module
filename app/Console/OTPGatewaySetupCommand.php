@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -12,28 +17,16 @@ use function Laravel\Prompts\select;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:otp-gateway-setup')]
+#[Description('OTP SMS gateway setup in .env file')]
 class OTPGatewaySetupCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:otp-gateway-setup';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'OTP SMS gateway setup in .env file';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -50,7 +43,7 @@ class OTPGatewaySetupCommand extends Command
                 preg_match("/^$targetKey=(.*)$/m", $envContent, $matches);
                 $value = $matches[1];
 
-                if ($value == 'twilio') {
+                if ($value === 'twilio') {
                     $targetKeys = ['ACTIVE_OTP_GATEWAY', 'TWILIO_AUTH_TOKEN', 'TWILIO_ACCOUNT_SID', 'TWILIO_VERIFICATION_SID', 'TWILIO_FROM_NUMBER']; // Add the keys you want to display
                     $twilio = $this->existingKeyValueInENV($targetKeys, $envContent);
                 } else {
@@ -66,7 +59,7 @@ class OTPGatewaySetupCommand extends Command
                         ['twilio', 'MessageBird'],
                     );
 
-                    if ($role == 'twilio') {
+                    if ($role === 'twilio') {
                         $targetKeys = ['ACTIVE_OTP_GATEWAY', 'TWILIO_AUTH_TOKEN', 'TWILIO_ACCOUNT_SID', 'TWILIO_VERIFICATION_SID', 'TWILIO_FROM_NUMBER']; // Add the keys you want to display
                         $twilio = $this->existingKeyValueInENV($targetKeys, $envContent);
                         $twilio_auth_token = text('Enter Twilio auth token', default: $twilio[1][1], required: 'Twilio auth token is required');
@@ -82,7 +75,7 @@ class OTPGatewaySetupCommand extends Command
                         );
                     }
 
-                    if ($role == 'MessageBird') {
+                    if ($role === 'MessageBird') {
                         $targetKeys = ['ACTIVE_OTP_GATEWAY', 'MESSAGEBIRD_API_KEY', 'MESSAGEBIRD_ORIGINATOR']; // Add the keys you want to display
                         $data = $this->existingKeyValueInENV($targetKeys, $envContent);
                         $messagebird_api_key = text('Enter MessageBird api key', default: $data[1][1], required: 'Port is MessageBird api key');
@@ -104,7 +97,7 @@ class OTPGatewaySetupCommand extends Command
 
                     if ($confirmed) {
 
-                        if ($role == 'twilio') {
+                        if ($role === 'twilio') {
                             $envContent = $this->twilioDataSetup(
                                 $envContent,
                                 $twilio_auth_token,
@@ -113,7 +106,7 @@ class OTPGatewaySetupCommand extends Command
                                 $twilio_from_number
                             );
                         }
-                        if ($role == 'MessageBird') {
+                        if ($role === 'MessageBird') {
                             $envContent = $this->messagebirdDataSetup(
                                 $envContent,
                                 $messagebird_api_key,
@@ -133,17 +126,21 @@ class OTPGatewaySetupCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
     private function twilioTable(
-        $twilio_auth_token,
-        $twilio_account_sid,
-        $twilio_verification_sid,
-        $twilio_from_number
-    ) {
+        string $twilio_auth_token,
+        string $twilio_account_sid,
+        string $twilio_verification_sid,
+        string $twilio_from_number
+    ): void {
         info('Please, check your credentials properly');
         table(['Key', 'Value'], [
             ['ACTIVE_OTP_GATEWAY', 'twilio'],
@@ -154,7 +151,7 @@ class OTPGatewaySetupCommand extends Command
         ]);
     }
 
-    private function messagebirdTable($messagebird_api_key, $messagebird_originator)
+    private function messagebirdTable(string $messagebird_api_key, string $messagebird_originator): void
     {
         info('Please check your credentials carefully.');
         table(['Key', 'Value'], [
@@ -166,12 +163,12 @@ class OTPGatewaySetupCommand extends Command
 
     // setup mailtrap's key and value in .env file
     private function twilioDataSetup(
-        $envContent,
-        $twilio_auth_token,
-        $twilio_account_sid,
-        $twilio_verification_sid,
-        $twilio_from_number
-    ) {
+        string $envContent,
+        string $twilio_auth_token,
+        string $twilio_account_sid,
+        string $twilio_verification_sid,
+        string $twilio_from_number
+    ): string {
         $envContent = preg_replace('/(ACTIVE_OTP_GATEWAY)=(.*)/', '$1=twilio', $envContent);
         $envContent = preg_replace('/(TWILIO_AUTH_TOKEN)=(.*)/', "$1=$twilio_auth_token", $envContent);
         $envContent = preg_replace('/(TWILIO_ACCOUNT_SID)=(.*)/', "$1=$twilio_account_sid", $envContent);
@@ -182,13 +179,13 @@ class OTPGatewaySetupCommand extends Command
     }
 
     // setup mailgun's key and value in .env file
-    private function messagebirdDataSetup($envContent, $messagebird_api_key, $messagebird_originator)
+    private function messagebirdDataSetup(string $envContent, string $messagebird_api_key, string $messagebird_originator): string
     {
         $envContent = preg_replace('/(ACTIVE_OTP_GATEWAY)=(.*)/', '$1=messagebird', $envContent);
 
         $envContent = preg_replace('/(MESSAGEBIRD_API_KEY)=(.*)/', "$1=$messagebird_api_key", $envContent);
 
-        if ($messagebird_originator != '') {
+        if ($messagebird_originator !== '') {
             $envContent = preg_replace('/(MESSAGEBIRD_ORIGINATOR)=(.*)/', "$1=$messagebird_originator", $envContent);
         }
 

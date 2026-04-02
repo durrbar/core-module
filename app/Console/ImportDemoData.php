@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Modules\Core\Console;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\DB;
 
 use function Laravel\Prompts\info;
 
+#[Signature('durrbar:seed')]
+#[Description('Import Demo Data')]
 final class ImportDemoData extends Command
 {
-    protected $signature = 'durrbar:seed';
-
-    protected $description = 'Import Demo Data';
-
-    public function handle()
+    public function handle(): int
     {
 
         info('Copying necessary files for seeding....');
@@ -30,9 +30,11 @@ final class ImportDemoData extends Command
         info('Seeding....');
 
         $this->seedDemoData();
+
+        return self::SUCCESS;
     }
 
-    public function seedDemoData()
+    public function seedDemoData(): void
     {
         $media_path = public_path('sql/media.sql');
         $media_sql = file_get_contents($media_path);

@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Mail;
@@ -14,26 +19,14 @@ use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\validate;
 
+#[Signature('durrbar:mail-setup')]
+#[Description('Mail setup')]
 class MailSetupCommand extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:mail-setup';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Mail setup';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         $reconfigure = '';
         try {
@@ -83,7 +76,7 @@ class MailSetupCommand extends Command
                         }
                     } while (true);
 
-                    if ($role == 'mailtrap') {
+                    if ($role === 'mailtrap') {
                         $this->mailtrapTable(
                             $mail_port,
                             $mail_host,
@@ -94,7 +87,7 @@ class MailSetupCommand extends Command
                         );
                     }
 
-                    if ($role == 'mailgun') {
+                    if ($role === 'mailgun') {
                         $mailgun_domain = text('Enter mailgun domain', default: $data[7][1] ?? '');
                         $mailgun_secret = text('Enter mailgun secret key', default: $data[8][1] ?? '');
 
@@ -110,7 +103,7 @@ class MailSetupCommand extends Command
                         );
                     }
 
-                    if ($role == 'gmail') {
+                    if ($role === 'gmail') {
                         $this->gmailTable(
                             $mail_port,
                             $mail_host,
@@ -135,7 +128,7 @@ class MailSetupCommand extends Command
                         $envContent = $this->remove_existing_env_key($envContent);
 
                         // setup mailtrap's key and value in .env file
-                        if ($role == 'mailtrap') {
+                        if ($role === 'mailtrap') {
                             $envContent = $this->mailtrapDataSetup(
                                 $envContent,
                                 $mail_port,
@@ -147,7 +140,7 @@ class MailSetupCommand extends Command
                             );
                         }
                         // setup mailgun's key and value in .env file
-                        if ($role == 'mailgun') {
+                        if ($role === 'mailgun') {
                             $envContent = $this->mailgunDataSetup(
                                 $envContent,
                                 $mail_port,
@@ -162,7 +155,7 @@ class MailSetupCommand extends Command
                         }
 
                         // setup gmail's key and value in .env file
-                        if ($role == 'gmail') {
+                        if ($role === 'gmail') {
                             $envContent = $this->gmailDataSetup(
                                 $envContent,
                                 $mail_port,
@@ -188,185 +181,16 @@ class MailSetupCommand extends Command
             } while ($reconfigure);
             info('If you want to test your mail configuration, then you can run this command');
             table(['Command', 'Details'], [['durrbar:test-mail-send', 'It will send a test mail']]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
-        }
-    }
 
-    private function mailtrapTable($mail_port, $mail_host, $mail_username, $mail_password, $mail_from_address, $admin_email)
-    {
-        info('Please, check your credentials properly');
-        table(['Key', 'Value'], [
-            ['MAIL_MAILER', 'smtp'],
-            ['MAIL_HOST', $mail_host],
-            ['MAIL_PORT', $mail_port],
-            ['MAIL_USERNAME', $mail_username],
-            ['MAIL_PASSWORD', $mail_password],
-            ['MAIL_FROM_ADDRESS', $mail_from_address],
-            ['ADMIN_EMAIL', $admin_email],
-
-        ]);
-    }
-
-    private function mailgunTable(
-        $mail_port,
-        $mail_host,
-        $mail_username,
-        $mail_password,
-        $mailgun_domain,
-        $mailgun_secret,
-        $mail_from_address,
-        $admin_email
-    ) {
-        info('Please, check your credentials properly');
-        table(['Key', 'Value'], [
-            ['MAIL_MAILER', 'mailgun'],
-            ['MAIL_HOST', $mail_host],
-            ['MAIL_PORT', $mail_port],
-            ['MAIL_USERNAME', $mail_username],
-            ['MAIL_PASSWORD', $mail_password],
-            ['MAIL_FROM_ADDRESS', $mail_from_address],
-            ['ADMIN_EMAIL', $admin_email],
-            ['MAILGUN_DOMAIN', $mailgun_domain],
-            ['MAILGUN_SECRET', $mailgun_secret],
-            ['MAIL_ENCRYPTION', 'tls'],
-        ]);
-    }
-
-    private function gmailTable($mail_port, $mail_host, $mail_username, $mail_password, $mail_from_address, $admin_email)
-    {
-        info('Please check your credentials carefully.');
-        table(['Key', 'Value'], [
-            ['MAIL_MAILER', 'smtp'],
-            ['MAIL_HOST', $mail_host],
-            ['MAIL_PORT', $mail_port],
-            ['MAIL_USERNAME', $mail_username],
-            ['MAIL_PASSWORD', $mail_password],
-            ['MAIL_FROM_ADDRESS', $mail_from_address],
-            ['ADMIN_EMAIL', $admin_email],
-        ]);
-    }
-
-    // setup mailtrap's key and value in .env file
-    private function mailtrapDataSetup($envContent, $mail_port, $mail_host, $mail_username, $mail_password, $mail_from_address, $admin_email)
-    {
-        $key = '# Email';
-        $data = [
-            'MAIL_MAILER=smtp ',
-            "MAIL_HOST={$mail_host}",
-            "MAIL_PORT={$mail_port}",
-            "MAIL_USERNAME={$mail_username}",
-            "MAIL_PASSWORD={$mail_password}",
-            "MAIL_FROM_ADDRESS={$mail_from_address}",
-            "ADMIN_EMAIL={$admin_email}",
-        ];
-        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
-
-        return $envContent;
-    }
-
-    // setup mailgun's key and value in .env file
-    private function mailgunDataSetup($envContent, $mail_port, $mail_host, $mail_username, $mail_password, $mailgun_domain, $mailgun_secret, $mail_from_address, $admin_email)
-    {
-        $key = '# Email';
-        $data = [
-            'MAIL_MAILER=mailgun ',
-            "MAIL_HOST={$mail_host}",
-            "MAIL_PORT={$mail_port}",
-            "MAIL_USERNAME={$mail_username}",
-            "MAIL_PASSWORD={$mail_password}",
-            "MAILGUN_DOMAIN={$mailgun_domain}",
-            "MAILGUN_SECRET={$mailgun_secret}",
-            "MAIL_FROM_ADDRESS={$mail_from_address}",
-            'MAIL_ENCRYPTION=tls',
-            "ADMIN_EMAIL={$admin_email}",
-        ];
-        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
-
-        return $envContent;
-    }
-
-    // setup gmail's key and value in .env file
-    private function gmailDataSetup($envContent, $mail_port, $mail_host, $mail_username, $mail_password, $admin_email, $mail_from_address)
-    {
-        $key = '# Email';
-        $data = [
-            'MAIL_MAILER=smtp',
-            "MAIL_HOST={$mail_host}",
-            "MAIL_PORT={$mail_port}",
-            "MAIL_USERNAME={$mail_username}",
-            "MAIL_PASSWORD={$mail_password}",
-            'MAIL_ENCRYPTION=tls',
-            "MAIL_FROM_ADDRESS={$mail_from_address}",
-            "ADMIN_EMAIL={$admin_email}",
-        ];
-        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
-
-        return $envContent;
-    }
-
-    private function remove_existing_env_key($envContent)
-    {
-        $keysToRemove = [
-            'MAIL_MAILER',
-            'MAIL_HOST',
-            'MAIL_PORT',
-            'MAIL_USERNAME',
-            'MAIL_PASSWORD',
-            'MAILGUN_DOMAIN',
-            'MAILGUN_SECRET',
-            'MAIL_FROM_ADDRESS',
-            'MAIL_ENCRYPTION',
-            'ADMIN_EMAIL',
-        ];
-
-        foreach ($keysToRemove as $key) {
-            $envContent = preg_replace("/^\s*$key\s*=\s*.*$/m", '', $envContent);
+            return self::FAILURE;
         }
 
-        return $envContent;
+        return self::SUCCESS;
     }
 
-    private function insertDataAfterKey($envContent, $key, $data)
-    {
-        // Split the content into lines
-        $lines = explode("\n", $envContent);
-
-        // Find the position of the key
-        $position = false;
-        foreach ($lines as $index => $line) {
-            // Check for the key, considering both commented and uncommented keys
-            if (strpos($line, $key) !== false) {
-                $position = $index;
-                break;
-            }
-        }
-
-        // If the key is found, insert data after it
-        if ($position !== false) {
-            // Check if the next line is empty, and remove it if necessary
-            if (isset($lines[$position + 1]) && empty(trim($lines[$position + 1]))) {
-                unset($lines[$position + 1]);
-            }
-
-            // Insert the new data
-            array_splice($lines, $position + 1, 0, $data);
-        } else {
-            // Key not found, insert data at the end
-            $lines = array_merge($lines, $data);
-        }
-
-        // Trim each line to remove leading and trailing whitespace
-        $lines = array_map('trim', $lines);
-
-        // Rebuild the content and remove extra newline characters
-        $envContent = implode("\n", $lines);
-        $envContent = preg_replace("/^\n+/", '', $envContent);
-
-        return $envContent;
-    }
-
-    protected function sendEmail()
+    protected function sendEmail(): void
     {
         $to = 'recipient@example.com';
         $subject = 'Mail Configuration Completed';
@@ -377,7 +201,7 @@ class MailSetupCommand extends Command
         });
     }
 
-    protected function checkExistingConfig($envContent)
+    protected function checkExistingConfig(string $envContent): array
     {
         $targetKeys = [
             'MAIL_MAILER',
@@ -415,5 +239,178 @@ class MailSetupCommand extends Command
         }
 
         return $keyValuePairs;
+    }
+
+    private function mailtrapTable(string $mail_port, string $mail_host, string $mail_username, string $mail_password, string $mail_from_address, string $admin_email): void
+    {
+        info('Please, check your credentials properly');
+        table(['Key', 'Value'], [
+            ['MAIL_MAILER', 'smtp'],
+            ['MAIL_HOST', $mail_host],
+            ['MAIL_PORT', $mail_port],
+            ['MAIL_USERNAME', $mail_username],
+            ['MAIL_PASSWORD', $mail_password],
+            ['MAIL_FROM_ADDRESS', $mail_from_address],
+            ['ADMIN_EMAIL', $admin_email],
+
+        ]);
+    }
+
+    private function mailgunTable(
+        string $mail_port,
+        string $mail_host,
+        string $mail_username,
+        string $mail_password,
+        string $mailgun_domain,
+        string $mailgun_secret,
+        string $mail_from_address,
+        string $admin_email
+    ): void {
+        info('Please, check your credentials properly');
+        table(['Key', 'Value'], [
+            ['MAIL_MAILER', 'mailgun'],
+            ['MAIL_HOST', $mail_host],
+            ['MAIL_PORT', $mail_port],
+            ['MAIL_USERNAME', $mail_username],
+            ['MAIL_PASSWORD', $mail_password],
+            ['MAIL_FROM_ADDRESS', $mail_from_address],
+            ['ADMIN_EMAIL', $admin_email],
+            ['MAILGUN_DOMAIN', $mailgun_domain],
+            ['MAILGUN_SECRET', $mailgun_secret],
+            ['MAIL_ENCRYPTION', 'tls'],
+        ]);
+    }
+
+    private function gmailTable(string $mail_port, string $mail_host, string $mail_username, string $mail_password, string $mail_from_address, string $admin_email): void
+    {
+        info('Please check your credentials carefully.');
+        table(['Key', 'Value'], [
+            ['MAIL_MAILER', 'smtp'],
+            ['MAIL_HOST', $mail_host],
+            ['MAIL_PORT', $mail_port],
+            ['MAIL_USERNAME', $mail_username],
+            ['MAIL_PASSWORD', $mail_password],
+            ['MAIL_FROM_ADDRESS', $mail_from_address],
+            ['ADMIN_EMAIL', $admin_email],
+        ]);
+    }
+
+    // setup mailtrap's key and value in .env file
+    private function mailtrapDataSetup(string $envContent, string $mail_port, string $mail_host, string $mail_username, string $mail_password, string $mail_from_address, string $admin_email): string
+    {
+        $key = '# Email';
+        $data = [
+            'MAIL_MAILER=smtp ',
+            "MAIL_HOST={$mail_host}",
+            "MAIL_PORT={$mail_port}",
+            "MAIL_USERNAME={$mail_username}",
+            "MAIL_PASSWORD={$mail_password}",
+            "MAIL_FROM_ADDRESS={$mail_from_address}",
+            "ADMIN_EMAIL={$admin_email}",
+        ];
+        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
+
+        return $envContent;
+    }
+
+    // setup mailgun's key and value in .env file
+    private function mailgunDataSetup(string $envContent, string $mail_port, string $mail_host, string $mail_username, string $mail_password, string $mailgun_domain, string $mailgun_secret, string $mail_from_address, string $admin_email): string
+    {
+        $key = '# Email';
+        $data = [
+            'MAIL_MAILER=mailgun ',
+            "MAIL_HOST={$mail_host}",
+            "MAIL_PORT={$mail_port}",
+            "MAIL_USERNAME={$mail_username}",
+            "MAIL_PASSWORD={$mail_password}",
+            "MAILGUN_DOMAIN={$mailgun_domain}",
+            "MAILGUN_SECRET={$mailgun_secret}",
+            "MAIL_FROM_ADDRESS={$mail_from_address}",
+            'MAIL_ENCRYPTION=tls',
+            "ADMIN_EMAIL={$admin_email}",
+        ];
+        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
+
+        return $envContent;
+    }
+
+    // setup gmail's key and value in .env file
+    private function gmailDataSetup(string $envContent, string $mail_port, string $mail_host, string $mail_username, string $mail_password, string $admin_email, string $mail_from_address): string
+    {
+        $key = '# Email';
+        $data = [
+            'MAIL_MAILER=smtp',
+            "MAIL_HOST={$mail_host}",
+            "MAIL_PORT={$mail_port}",
+            "MAIL_USERNAME={$mail_username}",
+            "MAIL_PASSWORD={$mail_password}",
+            'MAIL_ENCRYPTION=tls',
+            "MAIL_FROM_ADDRESS={$mail_from_address}",
+            "ADMIN_EMAIL={$admin_email}",
+        ];
+        $envContent = $this->insertDataAfterKey($envContent, $key, $data);
+
+        return $envContent;
+    }
+
+    private function remove_existing_env_key(string $envContent): string
+    {
+        $keysToRemove = [
+            'MAIL_MAILER',
+            'MAIL_HOST',
+            'MAIL_PORT',
+            'MAIL_USERNAME',
+            'MAIL_PASSWORD',
+            'MAILGUN_DOMAIN',
+            'MAILGUN_SECRET',
+            'MAIL_FROM_ADDRESS',
+            'MAIL_ENCRYPTION',
+            'ADMIN_EMAIL',
+        ];
+
+        foreach ($keysToRemove as $key) {
+            $envContent = preg_replace("/^\s*$key\s*=\s*.*$/m", '', $envContent);
+        }
+
+        return $envContent;
+    }
+
+    private function insertDataAfterKey(string $envContent, string $key, array $data): string
+    {
+        // Split the content into lines
+        $lines = explode("\n", $envContent);
+
+        // Find the position of the key
+        $position = false;
+        foreach ($lines as $index => $line) {
+            // Check for the key, considering both commented and uncommented keys
+            if (mb_strpos($line, $key) !== false) {
+                $position = $index;
+                break;
+            }
+        }
+
+        // If the key is found, insert data after it
+        if ($position !== false) {
+            // Check if the next line is empty, and remove it if necessary
+            if (isset($lines[$position + 1]) && empty(mb_trim($lines[$position + 1]))) {
+                unset($lines[$position + 1]);
+            }
+
+            // Insert the new data
+            array_splice($lines, $position + 1, 0, $data);
+        } else {
+            // Key not found, insert data at the end
+            $lines = array_merge($lines, $data);
+        }
+
+        // Trim each line to remove leading and trailing whitespace
+        $lines = array_map('trim', $lines);
+
+        // Rebuild the content and remove extra newline characters
+        $envContent = implode("\n", $lines);
+        $envContent = preg_replace("/^\n+/", '', $envContent);
+
+        return $envContent;
     }
 }

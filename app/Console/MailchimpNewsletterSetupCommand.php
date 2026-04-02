@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Modules\Ecommerce\Traits\ENVSetupTrait;
@@ -11,28 +16,16 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\table;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:mailchimp-newsletter')]
+#[Description('Mailchimp newsletter setup in .env file')]
 class MailchimpNewsletterSetupCommand extends Command
 {
     use ENVSetupTrait;
 
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'durrbar:mailchimp-newsletter';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Mailchimp newsletter setup in .env file';
-
-    /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         // Check if the .env file exists
         $this->CheckENVExistOrNot();
@@ -83,15 +76,19 @@ class MailchimpNewsletterSetupCommand extends Command
 
                 // If the user wants to reconfigure, the loop will continue
             } while ($reconfigure);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 
     private function newsletterTable(
-        $newsletter_api_key,
-        $newsletter_list_id
-    ) {
+        string $newsletter_api_key,
+        string $newsletter_list_id
+    ): void {
         info('Please, check your credentials properly');
         table(['Key', 'Value'], [
             ['NEWSLETTER_API_KEY', $newsletter_api_key],
@@ -100,10 +97,10 @@ class MailchimpNewsletterSetupCommand extends Command
     }
 
     private function newsletterDataSetup(
-        $envContent,
-        $newsletter_api_key,
-        $newsletter_list_id
-    ) {
+        string $envContent,
+        string $newsletter_api_key,
+        string $newsletter_list_id
+    ): string {
         $envContent = preg_replace('/(NEWSLETTER_API_KEY)=(.*)/', "$1=$newsletter_api_key", $envContent);
         $envContent = preg_replace('/(NEWSLETTER_LIST_ID)=(.*)/', "$1=$newsletter_list_id", $envContent);
 

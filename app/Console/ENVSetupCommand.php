@@ -1,20 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\table;
 
+#[Signature('durrbar:env-setup {key?}')]
+#[Description('Setup necessary key in .env file')]
 class ENVSetupCommand extends Command
 {
-    protected $signature = 'durrbar:env-setup {key?}';
-
-    protected $description = 'Setup necessary key in .env file';
-
-    public function handle()
+    public function handle(): int
     {
         $optionalValue = $this->argument('key');
         if (! $optionalValue) {
@@ -73,36 +75,36 @@ class ENVSetupCommand extends Command
         $this->call('optimize:clear');
 
         info('Thank You.');
+
+        return self::SUCCESS;
     }
 
-    private function commandOption($role)
+    private function commandOption(string $role): void
     {
-        if ($role == 'mail') {
+        if ($role === 'mail') {
             $this->call('durrbar:mail-setup');
-        } elseif ($role == 'database') {
+        } elseif ($role === 'database') {
             $this->call('durrbar:database-setup');
-        } elseif ($role == 'mail-test') {
+        } elseif ($role === 'mail-test') {
             $this->call('durrbar:test-mail-send');
-        } elseif ($role == 'aws') {
+        } elseif ($role === 'aws') {
             $this->call('durrbar:aws-setup');
-        } elseif ($role == 'translation-enable') {
+        } elseif ($role === 'translation-enable') {
             $this->call('durrbar:translation-enable');
-        } elseif ($role == 'default-language') {
+        } elseif ($role === 'default-language') {
             $this->call('durrbar:default-language-setup');
-        } elseif ($role == 'queue-connection') {
+        } elseif ($role === 'queue-connection') {
             $this->call('durrbar:queue-setup');
-        } elseif ($role == 'frontend-connection') {
+        } elseif ($role === 'frontend-connection') {
             $this->call('durrbar:frontend-setup');
-        } elseif ($role == 'newsletter') {
+        } elseif ($role === 'newsletter') {
             $this->call('durrbar:mailchimp-newsletter');
-        } elseif ($role == 'otp') {
+        } elseif ($role === 'otp') {
             $this->call('durrbar:otp-gateway-setup');
-        } elseif ($role == 'open-ai') {
+        } elseif ($role === 'open-ai') {
             $this->call('durrbar:open-ai-setup');
-        } elseif ($role == 'test-mail') {
+        } elseif ($role === 'test-mail') {
             $this->call('durrbar:test-mail-send');
-        } else {
-            $role = false;
         }
     }
 }

@@ -1,7 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Core\Console;
 
+use Exception;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -15,13 +20,11 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
 
+#[Signature('durrbar:create-admin')]
+#[Description('Create an admin user.')]
 class AdminCreateCommand extends Command
 {
-    protected $signature = 'durrbar:create-admin';
-
-    protected $description = 'Create an admin user.';
-
-    public function handle()
+    public function handle(): int
     {
         try {
 
@@ -70,7 +73,7 @@ class AdminCreateCommand extends Command
                         error($error);
                     }
 
-                    return;
+                    return self::FAILURE;
                 }
                 $user = User::create([
                     'name' => $name,
@@ -81,17 +84,21 @@ class AdminCreateCommand extends Command
                 $user->save();
                 $user->givePermissionTo(
                     [
-                        UserPermission::SUPER_ADMIN,
-                        UserPermission::STORE_OWNER,
-                        UserPermission::CUSTOMER,
+                        UserPermission::SuperAdmin->value,
+                        UserPermission::StoreOwner->value,
+                        UserPermission::Customer->value,
                     ]
                 );
-                $user->assignRole(UserRole::SUPER_ADMIN);
+                $user->assignRole(UserRole::SuperAdmin->value);
 
                 info('User Creation Successful!');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             error($e->getMessage());
+
+            return self::FAILURE;
         }
+
+        return self::SUCCESS;
     }
 }
