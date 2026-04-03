@@ -19,6 +19,11 @@ class Resource extends JsonResource
             return false;
         }
 
-        return in_array($key, explode(',', $include), true);
+        $requestedIncludes = array_values(array_filter(
+            array_map(static fn (string $value): string => trim($value), explode(',', $include)),
+            static fn (string $value): bool => $value !== ''
+        ));
+
+        return in_array($key, $requestedIncludes, true);
     }
 }
