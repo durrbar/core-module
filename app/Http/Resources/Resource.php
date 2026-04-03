@@ -14,6 +14,11 @@ class Resource extends JsonResource
      */
     public function needToInclude(Request $request, string $key): bool
     {
-        return in_array($key, explode(',', $request->get('include')));
+        $include = $request->get('include');
+        if (! is_string($include) || $include === '') {
+            return false;
+        }
+
+        return in_array($key, explode(',', $include), true);
     }
 }
