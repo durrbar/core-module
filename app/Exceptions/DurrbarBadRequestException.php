@@ -16,7 +16,6 @@ class DurrbarBadRequestException extends HttpException
      * @param  string  $message
      * @param  int  $statusCode
      * @param  int  $code
-     * @return void
      */
     public function __construct($message = SOMETHING_WENT_WRONG, $statusCode = Response::HTTP_BAD_REQUEST, ?Throwable $previous = null, array $headers = [], $code = 0)
     {

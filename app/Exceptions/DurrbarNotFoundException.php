@@ -15,7 +15,6 @@ class DurrbarNotFoundException extends HttpException
      *
      * @param  string  $message
      * @param  int  $code
-     * @return void
      */
     public function __construct($message = NOT_FOUND, ?Throwable $previous = null, array $headers = [], $code = 0)
     {
