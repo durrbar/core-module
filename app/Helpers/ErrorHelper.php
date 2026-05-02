@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Common\Helpers;
+namespace Modules\Core\Helpers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
