@@ -7,8 +7,8 @@ namespace Modules\Core\Console;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Modules\User\Models\User;
 
 use function Laravel\Prompts\info;
 
@@ -18,22 +18,22 @@ class AdminImportCommand extends Command
 {
     public function handle(): int
     {
-        if (DB::table('users')->first()) {
-            info('Previous users was kept. Thanks!');
-        } else {
-            info('Importing dummy settings...');
-            DB::table('users')->insert([
-                'id' => Str::uuid(),
+        $user = User::firstOrCreate(
+            [
+                'email' => 'kidmax285@gmail.com',
+            ],
+            [
                 'first_name' => 'Kid',
                 'last_name' => 'Max',
-                'email' => 'kidmax285@gmail.com',
                 'email_verified_at' => now(),
-                'password' => '$2y$10$UVs.WftC2iIdLQsHz9Tbdu7OmUXG3P7wyjHvJqCunyJ7JE8ekyXr.',
-                'is_active' => true,
-                'shop_id' => null,
-            ]);
+                'password' => Hash::make('demo1234'),
+            ]
+        );
 
-            info('User Creation Successful!');
+        if ($user->wasRecentlyCreated) {
+            info('Admin user created successfully.');
+        } else {
+            info('Admin user already exists.');
         }
 
         return self::SUCCESS;

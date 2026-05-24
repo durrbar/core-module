@@ -147,8 +147,14 @@ return [
     */
 
     'passkeys' => [
-        'relying_party_id' => parse_url(config('app.url'), PHP_URL_HOST),
-        'allowed_origins' => [config('app.url')],
+        'relying_party_id' => env(
+            'WEBAUTHN_RP_ID',
+            parse_url(env('FRONTEND_URL', env('APP_URL', 'http://localhost')), PHP_URL_HOST)
+        ),
+        'allowed_origins' => [
+            env('FRONTEND_URL', env('APP_URL', 'http://localhost')),
+        ],
+        'user_handle_secret' => config('app.key'),
         'timeout' => 60000,
     ],
 
