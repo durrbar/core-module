@@ -28,6 +28,7 @@ use Modules\Core\Console\SettingsDataImporter;
 use Modules\Core\Console\SettingsImportCommand;
 use Modules\Core\Console\TestMailSendCommand;
 use Modules\Core\Console\TranslationEnabledCommand;
+use Modules\Core\Helpers\FileHelper;
 use Modules\Core\Http\Resources\Resource;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
@@ -75,6 +76,10 @@ class CoreServiceProvider extends ServiceProvider
 
         $this->app->singleton(DurrbarVerification::class, function ($app) {
             return new DurrbarVerification();
+        });
+
+        $this->app->bind(FileHelper::class, function () {
+            return new FileHelper();
         });
 
         $this->mergeConfigFrom(__DIR__.'/../Config/shop.php', 'shop');

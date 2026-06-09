@@ -29,8 +29,6 @@ class FileHelper
 
     /**
      * Set the file to process.
-     *
-     * @return $this
      */
     public function setFile(UploadedFile $file): self
     {
@@ -41,9 +39,6 @@ class FileHelper
 
     /**
      * Set the file to process.
-     *
-     * @param  UploadedFile  $file
-     * @return $this
      */
     public function setPath(string $path): self
     {
@@ -54,8 +49,6 @@ class FileHelper
 
     /**
      * Set the disk for file storage.
-     *
-     * @return $this
      */
     public function setDisk(string $disk): self
     {
@@ -66,8 +59,6 @@ class FileHelper
 
     /**
      * Set the visibility for file storage.
-     *
-     * @return $this
      */
     public function setVisibility(string $visibility): self
     {
@@ -78,8 +69,6 @@ class FileHelper
 
     /**
      * Set the image height for resizing.
-     *
-     * @return $this
      */
     public function setHeight(int $height): self
     {
@@ -90,8 +79,6 @@ class FileHelper
 
     /**
      * Set the image quality for compression.
-     *
-     * @return $this
      */
     public function setQuality(int $quality): self
     {
@@ -102,8 +89,6 @@ class FileHelper
 
     /**
      * Generate a unique file name and set the path.
-     *
-     * @return $this
      */
     public function generateUniqueFileName(): self
     {
@@ -122,8 +107,6 @@ class FileHelper
 
     /**
      * Upload the image with the generated filename and path.
-     *
-     * @return $this
      */
     public function upload(): self
     {
@@ -167,10 +150,7 @@ class FileHelper
         $width = (int) (($image->width() / $image->height()) * $this->height);
 
         // Resize and maintain aspect ratio
-        return $image->resize($width, $this->height, function ($constraint): void {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })->encodeByExtension($this->file->extension(), quality: $this->quality);
+        return $image->resize($width, $this->height)->encodeByExtension($this->file->extension(), quality: $this->quality);
     }
 
     /**
@@ -193,7 +173,7 @@ class FileHelper
     {
         $this->ensureDirectoryExists();
 
-        return Storage::disk($this->disk)->putFileAs(dirname($this->path), $this->file, basename($this->path), ['visibility' => $this->visibility]);
+        return (bool) Storage::disk($this->disk)->putFileAs(dirname($this->path), $this->file, basename($this->path), ['visibility' => $this->visibility]);
     }
 
     /**
